@@ -1,0 +1,42 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '.claude/hooks/guard-generated-files.sh'"
+          },
+          {
+            "type": "command",
+            "command": "bash '.claude/hooks/guard-lock-files.sh'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash '.claude/hooks/validate-drift-table.sh'"
+          },
+          {
+            "type": "command",
+            "command": "bash '.claude/hooks/validate-dao-patterns.sh'"
+          },
+          {
+            "type": "command",
+            "command": "bash '.claude/hooks/warn-print-statements.sh'"
+          },
+          {
+            "type": "command",
+            "command": "bash '.claude/hooks/suggest-codegen.sh'"
+          }
+        ]
+      }
+    ]
+  }
+}

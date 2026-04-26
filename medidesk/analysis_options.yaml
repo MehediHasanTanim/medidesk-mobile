@@ -1,0 +1,28 @@
+include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  plugins:
+    - custom_lint          # enables riverpod_lint
+  errors:
+    invalid_annotation_target: ignore   # suppresses freezed false-positives
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+
+linter:
+  rules:
+    # Style
+    prefer_single_quotes: true
+    always_declare_return_types: true
+    prefer_final_locals: true
+    avoid_print: true
+    unawaited_futures: true            # catch fire-and-forget bugs
+    cancel_subscriptions: true
+    close_sinks: true
+    # Drift / codegen — generated files use double quotes
+    unnecessary_string_interpolations: true
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    # Disable doc-comment requirement on public API (generated code, providers)
+    public_member_api_docs: false
+    lines_longer_than_80_chars: false
