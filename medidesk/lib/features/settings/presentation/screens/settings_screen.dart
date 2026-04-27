@@ -51,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.ink.withOpacity(0.04),
+                          color: AppColors.ink.withValues(alpha: 0.04),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -108,7 +108,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.ink.withOpacity(0.04),
+                          color: AppColors.ink.withValues(alpha: 0.04),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
@@ -185,7 +185,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.ink.withOpacity(0.04),
+                          color: AppColors.ink.withValues(alpha: 0.04),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
@@ -230,7 +230,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.ink.withOpacity(0.04),
+                          color: AppColors.ink.withValues(alpha: 0.04),
                           blurRadius: 4,
                           offset: const Offset(0, 1),
                         ),
@@ -373,7 +373,7 @@ class _ToggleRow extends StatelessWidget {
                           shape: BoxShape.circle,
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
                               blurRadius: 3,
                               offset: const Offset(0, 1),
                             ),
@@ -430,7 +430,7 @@ class _LinkRow extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: iconColor.withOpacity(0.12),
+                    color: iconColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(icon, size: 16, color: iconColor),

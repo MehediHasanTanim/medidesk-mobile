@@ -96,7 +96,7 @@ class _ConsultationDetailScreenState extends State<ConsultationDetailScreen>
                       children: [
                         const CircleAvatar(
                           radius: 22,
-                          backgroundColor: Color(0xff5ba9c430),
+                          backgroundColor: Color(0x305ba9c4),
                           child: Text('RV',
                               style: TextStyle(
                                   fontWeight: FontWeight.w700,
@@ -248,7 +248,7 @@ class _ConsultationDetailScreenState extends State<ConsultationDetailScreen>
                                   borderRadius: BorderRadius.circular(999),
                                   border: Border.all(
                                       color: AppColors.primaryDark
-                                          .withOpacity(0.3)),
+                                          .withValues(alpha: 0.3)),
                                 ),
                                 child: const Text('AI scribe',
                                     style: TextStyle(
@@ -287,8 +287,7 @@ class _ConsultationDetailScreenState extends State<ConsultationDetailScreen>
                                           horizontal: 1),
                                       height: animated.clamp(2.0, 20.0),
                                       decoration: BoxDecoration(
-                                        color: AppColors.primary.withOpacity(
-                                            0.5 + (h / 20)),
+                                        color: AppColors.primary.withValues(alpha: 0.5 + (h / 20)),
                                         borderRadius: BorderRadius.circular(1),
                                       ),
                                     ),
@@ -401,7 +400,7 @@ class _ConsultationDetailScreenState extends State<ConsultationDetailScreen>
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.ink.withOpacity(0.04),
+              color: AppColors.ink.withValues(alpha: 0.04),
               blurRadius: 4,
               offset: const Offset(0, 1),
             ),

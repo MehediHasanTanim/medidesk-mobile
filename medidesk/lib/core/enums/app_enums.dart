@@ -2,6 +2,7 @@
 ///
 /// String values match the API contract exactly.
 /// Drift tables store enums as TEXT using the enum's [name] property.
+// ignore_for_file: constant_identifier_names
 library;
 
 // ── User roles ────────────────────────────────────────────────────────────

@@ -30,10 +30,15 @@ class PatientDao extends DatabaseAccessor<AppDatabase> with _$PatientDaoMixin {
   }
 
   Future<PatientRow?> getById(String localId) =>
-      (select(patients)..where((t) => t.id.equals(localId))).getSingleOrNull();
+      (select(patients)
+            ..where((t) => t.id.equals(localId) & t.isDeleted.equals(0)))
+          .getSingleOrNull();
 
   Future<PatientRow?> getByServerId(String serverId) =>
-      (select(patients)..where((t) => t.serverId.equals(serverId)))
+      (select(patients)
+            ..where(
+              (t) => t.serverId.equals(serverId) & t.isDeleted.equals(0),
+            ))
           .getSingleOrNull();
 
   Future<void> insertPatient(PatientsCompanion row) =>
@@ -93,5 +98,18 @@ class PatientDao extends DatabaseAccessor<AppDatabase> with _$PatientDaoMixin {
     await batch((b) {
       b.insertAllOnConflictUpdate(patientNotes, rows);
     });
+  }
+
+  Future<void> updateNoteSyncStatus(
+    String localId,
+    String syncStatus, {
+    String? serverId,
+  }) {
+    return (update(patientNotes)..where((t) => t.id.equals(localId))).write(
+      PatientNotesCompanion(
+        syncStatus: Value(syncStatus),
+        serverId: serverId != null ? Value(serverId) : const Value.absent(),
+      ),
+    );
   }
 }

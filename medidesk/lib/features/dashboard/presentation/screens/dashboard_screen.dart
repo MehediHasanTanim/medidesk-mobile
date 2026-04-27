@@ -78,7 +78,7 @@ class DashboardScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.ink.withOpacity(0.06),
+                      color: AppColors.ink.withValues(alpha: 0.06),
                       blurRadius: 6,
                       offset: const Offset(0, 2),
                     ),
@@ -145,7 +145,7 @@ class _QueueCardState extends State<_QueueCard>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.darkCardStart.withOpacity(0.3),
+            color: AppColors.darkCardStart.withValues(alpha: 0.3),
             blurRadius: 20,
             offset: const Offset(0, 6),
           ),
@@ -215,7 +215,7 @@ class _QueueCardState extends State<_QueueCard>
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: 14 / 22,
-              backgroundColor: Colors.white.withOpacity(0.18),
+              backgroundColor: Colors.white.withValues(alpha: 0.18),
               valueColor:
                   const AlwaysStoppedAnimation<Color>(Color(0xFF7EE3BF)),
               minHeight: 6,
@@ -252,10 +252,10 @@ class _DarkBtn extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
         decoration: BoxDecoration(
-          color: outlined ? Colors.transparent : Colors.white.withOpacity(0.18),
+          color: outlined ? Colors.transparent : Colors.white.withValues(alpha: 0.18),
           borderRadius: BorderRadius.circular(10),
           border: outlined
-              ? Border.all(color: Colors.white.withOpacity(0.3))
+              ? Border.all(color: Colors.white.withValues(alpha: 0.3))
               : null,
         ),
         child: Text(label,
@@ -272,7 +272,6 @@ class _DarkBtn extends StatelessWidget {
 class _KpiRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final tt = Theme.of(context).textTheme;
     return const Row(
       children: [
         Expanded(child: _KpiCard(label: 'Appointments', value: '22', sub: '+3 walk-ins', subColor: AppColors.primaryDark)),
@@ -303,7 +302,7 @@ class _KpiCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.ink.withOpacity(0.04),
+            color: AppColors.ink.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -363,7 +362,7 @@ class _UpNextSection extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             boxShadow: [
               BoxShadow(
-                color: AppColors.ink.withOpacity(0.04),
+                color: AppColors.ink.withValues(alpha: 0.04),
                 blurRadius: 6,
                 offset: const Offset(0, 2),
               ),
@@ -409,7 +408,7 @@ class _UpNextRow extends StatelessWidget {
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundColor: item.color.withOpacity(0.2),
+                backgroundColor: item.color.withValues(alpha: 0.2),
                 child: Text(
                   item.name.split(' ').map((w) => w[0]).take(2).join(),
                   style: TextStyle(

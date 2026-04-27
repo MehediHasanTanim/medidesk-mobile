@@ -93,7 +93,7 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                             ),
                             CircleAvatar(
                               radius: 32,
-                              backgroundColor: Color(0xff5ba9c420),
+                              backgroundColor: Color(0x205ba9c4),
                               child: Text('RV',
                                   style: TextStyle(
                                       fontSize: 18,
@@ -183,7 +183,7 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
                             ),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.ink.withOpacity(0.04),
+                                color: AppColors.ink.withValues(alpha: 0.04),
                                 blurRadius: 4,
                                 offset: const Offset(0, 1),
                               ),
@@ -289,7 +289,7 @@ class _InvoiceDetailScreenState extends State<InvoiceDetailScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.ink.withOpacity(0.04),
+              color: AppColors.ink.withValues(alpha: 0.04),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

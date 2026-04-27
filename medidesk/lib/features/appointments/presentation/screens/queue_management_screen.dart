@@ -81,7 +81,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen>
                             width: 40,
                             height: 40,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.18),
+                              color: Colors.white.withValues(alpha: 0.18),
                               shape: BoxShape.circle,
                             ),
                             child: const Icon(Icons.arrow_back,
@@ -168,7 +168,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen>
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.ink.withOpacity(0.04),
+                        color: AppColors.ink.withValues(alpha: 0.04),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -189,8 +189,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen>
                               color: AppColors.primarySoft,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColors.primary.withOpacity(
-                                      0.5 * (1 - v)),
+                                  color: AppColors.primary.withValues(alpha: 0.5 * (1 - v)),
                                   blurRadius: 16 * v,
                                   spreadRadius: 8 * v,
                                 ),
@@ -246,7 +245,7 @@ class _QueueManagementScreenState extends State<QueueManagementScreen>
                             borderRadius: BorderRadius.circular(10),
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withOpacity(0.3),
+                                color: AppColors.primary.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 offset: const Offset(0, 3),
                               ),
@@ -301,7 +300,7 @@ class _GlassIconBtn extends StatelessWidget {
       width: 40,
       height: 40,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.18),
+        color: Colors.white.withValues(alpha: 0.18),
         shape: BoxShape.circle,
       ),
       child: Icon(icon, color: Colors.white, size: 18),
@@ -340,7 +339,7 @@ class _QueueRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.ink.withOpacity(0.04),
+            color: AppColors.ink.withValues(alpha: 0.04),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),
@@ -369,7 +368,7 @@ class _QueueRow extends StatelessWidget {
           const SizedBox(width: 10),
           CircleAvatar(
             radius: 16,
-            backgroundColor: item.color.withOpacity(0.2),
+            backgroundColor: item.color.withValues(alpha: 0.2),
             child: Text(initials,
                 style: TextStyle(
                     fontSize: 11,

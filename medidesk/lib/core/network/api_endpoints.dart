@@ -18,6 +18,7 @@ abstract final class ApiEndpoints {
   // ── Patients ──────────────────────────────────────────────────────────
   static const String patients             = '/patients/';
   static const String patientSearch        = '/patients/search/';
+  static const String patientNoteCreate    = '/patient-notes/';
   static String patientDetail(String id)   => '/patients/$id/';
   static String patientHistory(String id)  => '/patients/$id/history/';
   static String patientNotes(String id)    => '/patients/$id/notes/';
@@ -40,6 +41,7 @@ abstract final class ApiEndpoints {
 
   // ── Prescriptions ─────────────────────────────────────────────────────
   static const String prescriptions                    = '/prescriptions/';
+  static const String prescriptionItems                = '/prescription-items/';
   static const String pendingPrescriptions             = '/prescriptions/pending/';
   static String prescriptionDetail(String id)          => '/prescriptions/$id/';
   static String prescriptionApprove(String id)         => '/prescriptions/$id/approve/';
@@ -49,6 +51,7 @@ abstract final class ApiEndpoints {
 
   // ── Billing ───────────────────────────────────────────────────────────
   static const String invoices            = '/invoices/';
+  static const String invoiceItems        = '/invoice-items/';
   static const String payments            = '/payments/';
   static const String incomeReport        = '/income-report/';
   static String invoiceDetail(String id)  => '/invoices/$id/';

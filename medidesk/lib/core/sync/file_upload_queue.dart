@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:dio/dio.dart';
 import '../error/app_exception.dart';
@@ -44,7 +45,7 @@ class FileUploadQueue {
       _queue.removeAt(0);
     } finally {
       _isProcessing = false;
-      if (_queue.isNotEmpty) _processNext();
+      if (_queue.isNotEmpty) unawaited(_processNext());
     }
   }
 
@@ -76,7 +77,7 @@ class FileUploadQueue {
     });
 
     await _dio.post<void>(
-      ApiEndpoints.reportDocuments,
+      ApiEndpoints.reports,
       data: formData,
     );
   }

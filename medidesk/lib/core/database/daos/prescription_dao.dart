@@ -27,6 +27,11 @@ class PrescriptionDao extends DatabaseAccessor<AppDatabase>
             ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
           .watch();
 
+  Future<PrescriptionRow?> getById(String localId) =>
+      (select(prescriptions)
+            ..where((t) => t.id.equals(localId) & t.isDeleted.equals(0)))
+          .getSingleOrNull();
+
   Future<void> upsertPrescription(PrescriptionsCompanion row) =>
       into(prescriptions).insertOnConflictUpdate(row);
 

@@ -13,7 +13,7 @@ class AppConfig {
 
   static const AppConfig development = AppConfig._(
     environment: AppEnvironment.development,
-    baseUrl: 'http://10.0.2.2:8000/api/v1', // Android emulator → host
+    baseUrl: 'http://10.0.2.2:8005/api/v1', // Android emulator → host
     workManagerTaskName: 'com.medidesk.sync.dev',
   );
 

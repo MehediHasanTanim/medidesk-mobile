@@ -42,7 +42,7 @@ class _PrescriptionFormScreenState extends State<PrescriptionFormScreen> {
                       children: [
                         const CircleAvatar(
                           radius: 16,
-                          backgroundColor: Color(0xff5ba9c420),
+                          backgroundColor: Color(0x205ba9c4),
                           child: Text('RV',
                               style: TextStyle(
                                   fontSize: 11,
@@ -268,7 +268,7 @@ class _MedCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.ink.withOpacity(0.04),
+            color: AppColors.ink.withValues(alpha: 0.04),
             blurRadius: 4,
             offset: const Offset(0, 1),
           ),

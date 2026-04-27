@@ -7,7 +7,7 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.icon,
-    this.variant = _Variant.filled,
+    this.variant = AppButtonVariant.filled,
   });
 
   const AppButton.outlined({
@@ -16,7 +16,7 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.icon,
-  }) : variant = _Variant.outlined;
+  }) : variant = AppButtonVariant.outlined;
 
   const AppButton.text({
     super.key,
@@ -24,13 +24,13 @@ class AppButton extends StatelessWidget {
     required this.onPressed,
     this.isLoading = false,
     this.icon,
-  }) : variant = _Variant.text;
+  }) : variant = AppButtonVariant.text;
 
   final String label;
   final VoidCallback? onPressed;
   final bool isLoading;
   final IconData? icon;
-  final _Variant variant;
+  final AppButtonVariant variant;
 
   @override
   Widget build(BuildContext context) {
@@ -52,15 +52,15 @@ class AppButton extends StatelessWidget {
             : Text(label);
 
     return switch (variant) {
-      _Variant.filled => ElevatedButton(
+      AppButtonVariant.filled => ElevatedButton(
           onPressed: isLoading ? null : onPressed,
           child: child,
         ),
-      _Variant.outlined => OutlinedButton(
+      AppButtonVariant.outlined => OutlinedButton(
           onPressed: isLoading ? null : onPressed,
           child: child,
         ),
-      _Variant.text => TextButton(
+      AppButtonVariant.text => TextButton(
           onPressed: isLoading ? null : onPressed,
           child: child,
         ),
@@ -68,4 +68,4 @@ class AppButton extends StatelessWidget {
   }
 }
 
-enum _Variant { filled, outlined, text }
+enum AppButtonVariant { filled, outlined, text }

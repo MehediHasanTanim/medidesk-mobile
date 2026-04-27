@@ -134,6 +134,28 @@ class AppDatabase extends _$AppDatabase {
     // Sync queue
     await customStatement(
         'CREATE INDEX IF NOT EXISTS idx_sync_queue_status ON sync_queue(status, next_retry_at, created_at)');
+
+    // Sync-status sweep indexes (for SyncQueueProcessor pending-check)
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_patients_sync ON patients(sync_status) WHERE is_deleted = 0');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_appointments_sync ON appointments(sync_status) WHERE is_deleted = 0');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_consultations_sync ON consultations(sync_status) WHERE is_deleted = 0');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_prescriptions_sync ON prescriptions(sync_status) WHERE is_deleted = 0');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_test_orders_sync ON test_orders(sync_status) WHERE is_deleted = 0');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_invoices_sync ON invoices(sync_status) WHERE is_deleted = 0');
+
+    // Compound indexes for FK-heavy queries
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_appt_chamber_date ON appointments(chamber_id, scheduled_at, status)');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_invoice_items_invoice ON invoice_items(invoice_id)');
+    await customStatement(
+        'CREATE INDEX IF NOT EXISTS idx_payments_invoice ON payments(invoice_id)');
   }
 
   /// Wipe all data — called on logout.

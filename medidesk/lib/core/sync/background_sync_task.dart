@@ -1,5 +1,4 @@
 import 'package:workmanager/workmanager.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -22,7 +21,7 @@ void callbackDispatcher() {
     try {
       final db = AppDatabase();
       final prefs = PreferencesService(await SharedPreferences.getInstance());
-      const storage = SecureStorageService(const FlutterSecureStorage());
+      const storage = SecureStorageService(FlutterSecureStorage());
       final connectivity = ConnectivityService(Connectivity());
 
       final isOnline = await connectivity.isOnline;
@@ -44,7 +43,7 @@ void callbackDispatcher() {
 }
 
 Future<void> registerBackgroundSync() async {
-  await Workmanager().initialize(callbackDispatcher, isInDebugMode: false);
+  await Workmanager().initialize(callbackDispatcher);
   await Workmanager().registerPeriodicTask(
     _taskName,
     _taskName,

@@ -28,6 +28,11 @@ class TestOrderDao extends DatabaseAccessor<AppDatabase>
             ..orderBy([(t) => OrderingTerm.desc(t.orderedAt)]))
           .watch();
 
+  Future<TestOrderRow?> getById(String localId) =>
+      (select(testOrders)
+            ..where((t) => t.id.equals(localId) & t.isDeleted.equals(0)))
+          .getSingleOrNull();
+
   Future<void> upsertAll(List<TestOrdersCompanion> rows) async {
     await batch((b) {
       b.insertAllOnConflictUpdate(testOrders, rows);

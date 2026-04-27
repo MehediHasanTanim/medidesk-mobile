@@ -50,7 +50,7 @@ class _AppointmentListScreenState extends State<AppointmentListScreen> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.ink.withOpacity(0.06),
+                          color: AppColors.ink.withValues(alpha: 0.06),
                           blurRadius: 6,
                           offset: const Offset(0, 2),
                         ),
@@ -102,7 +102,7 @@ class _AppointmentListScreenState extends State<AppointmentListScreen> {
                                 fontWeight: FontWeight.w700,
                                 letterSpacing: 1,
                                 color: selected
-                                    ? Colors.white.withOpacity(0.7)
+                                    ? Colors.white.withValues(alpha: 0.7)
                                     : AppColors.ink2,
                               ),
                             ),
@@ -204,7 +204,7 @@ class _SlotRow extends StatelessWidget {
                 width: 4,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: slot.color.withOpacity(slot.isEmpty ? 0.4 : 1),
+                    color: slot.color.withValues(alpha: slot.isEmpty ? 0.4 : 1),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -224,7 +224,7 @@ class _SlotRow extends StatelessWidget {
                         ? null
                         : [
                             BoxShadow(
-                              color: AppColors.ink.withOpacity(0.04),
+                              color: AppColors.ink.withValues(alpha: 0.04),
                               blurRadius: 4,
                               offset: const Offset(0, 1),
                             ),
@@ -239,7 +239,7 @@ class _SlotRow extends StatelessWidget {
                       if (!slot.isEmpty)
                         CircleAvatar(
                           radius: 16,
-                          backgroundColor: slot.color.withOpacity(0.2),
+                          backgroundColor: slot.color.withValues(alpha: 0.2),
                           child: Text(initials,
                               style: TextStyle(
                                   fontSize: 11,

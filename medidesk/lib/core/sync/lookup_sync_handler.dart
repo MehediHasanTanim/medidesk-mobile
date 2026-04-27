@@ -86,7 +86,7 @@ class LookupSyncHandler {
     int page = 1;
     while (true) {
       final resp = await _dio.get<Map<String, dynamic>>(
-        ApiEndpoints.genericMedicines,
+        ApiEndpoints.generics,
         queryParameters: {'page': page, 'limit': 500},
       );
       final data = resp.data!;
@@ -104,7 +104,7 @@ class LookupSyncHandler {
     int page = 1;
     while (true) {
       final resp = await _dio.get<Map<String, dynamic>>(
-        ApiEndpoints.brandMedicines,
+        ApiEndpoints.brands,
         queryParameters: {'page': page, 'limit': 500},
       );
       final data = resp.data!;

@@ -36,7 +36,9 @@ class InvoiceDao extends DatabaseAccessor<AppDatabase>
           .watch();
 
   Future<InvoiceRow?> getById(String localId) =>
-      (select(invoices)..where((t) => t.id.equals(localId))).getSingleOrNull();
+      (select(invoices)
+            ..where((t) => t.id.equals(localId) & t.isDeleted.equals(0)))
+          .getSingleOrNull();
 
   Future<void> upsertInvoice(InvoicesCompanion row) =>
       into(invoices).insertOnConflictUpdate(row);
@@ -83,6 +85,19 @@ class InvoiceDao extends DatabaseAccessor<AppDatabase>
   }) {
     return (update(invoices)..where((t) => t.id.equals(localId))).write(
       InvoicesCompanion(
+        syncStatus: Value(syncStatus),
+        serverId: serverId != null ? Value(serverId) : const Value.absent(),
+      ),
+    );
+  }
+
+  Future<void> updatePaymentSyncStatus(
+    String localId,
+    String syncStatus, {
+    String? serverId,
+  }) {
+    return (update(payments)..where((t) => t.id.equals(localId))).write(
+      PaymentsCompanion(
         syncStatus: Value(syncStatus),
         serverId: serverId != null ? Value(serverId) : const Value.absent(),
       ),

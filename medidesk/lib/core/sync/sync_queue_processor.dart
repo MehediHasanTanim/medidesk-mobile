@@ -2,12 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:dio/dio.dart';
 import '../database/app_database.dart';
-import '../database/daos/sync_queue_dao.dart';
-import '../database/daos/patient_dao.dart';
-import '../database/daos/appointment_dao.dart';
-import '../database/daos/consultation_dao.dart';
-import '../database/daos/test_order_dao.dart';
-import '../database/daos/invoice_dao.dart';
 import '../error/app_exception.dart';
 import '../error/error_handler.dart';
 import '../network/api_endpoints.dart';
@@ -54,10 +48,8 @@ class SyncQueueProcessor {
 
   Future<void> _handleFailure(SyncQueueEntry entry, String errorMessage) async {
     final retryCount = entry.retryCount + 1;
-    final backoffMs =
-        (1 << retryCount) * 1000; // 2s, 4s, 8s
-    final nextRetryAt =
-        DateTime.now().millisecondsSinceEpoch + backoffMs;
+    final backoffMs = (1 << retryCount) * 1000; // 2s, 4s, 8s
+    final nextRetryAt = DateTime.now().millisecondsSinceEpoch + backoffMs;
 
     await _db.syncQueueDao.markFailed(
       entry.id,
@@ -73,6 +65,44 @@ class SyncQueueProcessor {
 
   Future<String?> _dispatchApiCall(SyncQueueEntry entry) async {
     final payload = jsonDecode(entry.payloadJson) as Map<String, dynamic>;
+
+    // ── Inline: patient_note — nested path requires parent server ID ──────
+    if (entry.entityType == 'patient_note') {
+      final patientLocalId = payload['patient_id'] as String;
+      final patientServerId = await _getServerId('patient', patientLocalId);
+      if (patientServerId == null) return null; // wait for patient CREATE to sync
+      final resp = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.patientNotes(patientServerId),
+        data: {'content': payload['content'], 'local_id': entry.localId},
+      );
+      return resp.data?['id'] as String?;
+    }
+
+    // ── Inline: consultation_vitals — PATCH to nested vitals path ─────────
+    if (entry.entityType == 'consultation_vitals') {
+      final consultationServerId =
+          await _getServerId('consultation', entry.localId);
+      if (consultationServerId == null) return null;
+      await _dio.patch<void>(
+        ApiEndpoints.consultationVitals(consultationServerId),
+        data: payload,
+      );
+      return null;
+    }
+
+    // ── Inline: test_order_bulk — POST to consultation test-orders path ───
+    if (entry.entityType == 'test_order_bulk') {
+      final consultationLocalId = payload['consultation_id'] as String;
+      final consultationServerId =
+          await _getServerId('consultation', consultationLocalId);
+      if (consultationServerId == null) return null; // wait for consultation sync
+      await _dio.post<void>(
+        ApiEndpoints.consultationTestOrders(consultationServerId),
+        data: payload,
+      );
+      return null;
+    }
+
     final entityPath = _entityPath(entry.entityType);
 
     switch (entry.operation) {
@@ -119,16 +149,14 @@ class SyncQueueProcessor {
 
   String _entityPath(String entityType) {
     return switch (entityType) {
-      'patient' => ApiEndpoints.patients,
-      'patient_note' => ApiEndpoints.patientNotes,
-      'appointment' => ApiEndpoints.appointments,
+      'patient'      => ApiEndpoints.patients,
+      'appointment'  => ApiEndpoints.appointments,
+      'walk_in'      => ApiEndpoints.walkIn,
       'consultation' => ApiEndpoints.consultations,
       'prescription' => ApiEndpoints.prescriptions,
-      'prescription_items' => ApiEndpoints.prescriptionItems,
-      'test_order' => ApiEndpoints.testOrders,
-      'invoice' => ApiEndpoints.invoices,
-      'invoice_items' => ApiEndpoints.invoiceItems,
-      'payment' => ApiEndpoints.payments,
+      'test_order'   => ApiEndpoints.testOrders,
+      'invoice'      => ApiEndpoints.invoices,
+      'payment'      => ApiEndpoints.payments,
       _ => throw SyncException(
           'Unknown entity type: $entityType',
           entityType: entityType,
@@ -139,12 +167,13 @@ class SyncQueueProcessor {
 
   Future<String?> _getServerId(String entityType, String localId) async {
     return switch (entityType) {
-      'patient' => (await _db.patientDao.getById(localId))?.serverId,
-      'appointment' =>
-        (await _db.appointmentDao.getById(localId))?.serverId,
-      'consultation' =>
-        (await _db.consultationDao.getById(localId))?.serverId,
-      'invoice' => (await _db.invoiceDao.getById(localId))?.serverId,
+      'patient'      => (await _db.patientDao.getById(localId))?.serverId,
+      'appointment'  => (await _db.appointmentDao.getById(localId))?.serverId,
+      'walk_in'      => (await _db.appointmentDao.getById(localId))?.serverId,
+      'consultation' => (await _db.consultationDao.getById(localId))?.serverId,
+      'prescription' => (await _db.prescriptionDao.getById(localId))?.serverId,
+      'test_order'   => (await _db.testOrderDao.getById(localId))?.serverId,
+      'invoice'      => (await _db.invoiceDao.getById(localId))?.serverId,
       _ => null,
     };
   }
@@ -156,35 +185,30 @@ class SyncQueueProcessor {
   ) async {
     switch (entityType) {
       case 'patient':
-        await _db.patientDao.updateSyncStatus(
-          localId,
-          'synced',
-          serverId: serverId,
-        );
+        await _db.patientDao.updateSyncStatus(localId, 'synced',
+            serverId: serverId);
       case 'appointment':
-        await _db.appointmentDao.updateSyncStatus(
-          localId,
-          'synced',
-          serverId: serverId,
-        );
+      case 'walk_in':
+        await _db.appointmentDao.updateSyncStatus(localId, 'synced',
+            serverId: serverId);
       case 'consultation':
-        await _db.consultationDao.updateSyncStatus(
-          localId,
-          'synced',
-          serverId: serverId,
-        );
+        await _db.consultationDao.updateSyncStatus(localId, 'synced',
+            serverId: serverId);
+      case 'prescription':
+        await _db.prescriptionDao.updateSyncStatus(localId, 'synced',
+            serverId: serverId);
       case 'test_order':
-        await _db.testOrderDao.updateSyncStatus(
-          localId,
-          'synced',
-          serverId: serverId,
-        );
+        await _db.testOrderDao.updateSyncStatus(localId, 'synced',
+            serverId: serverId);
       case 'invoice':
-        await _db.invoiceDao.updateSyncStatus(
-          localId,
-          'synced',
-          serverId: serverId,
-        );
+        await _db.invoiceDao.updateSyncStatus(localId, 'synced',
+            serverId: serverId);
+      case 'payment':
+        await _db.invoiceDao.updatePaymentSyncStatus(localId, 'synced',
+            serverId: serverId);
+      case 'patient_note':
+        await _db.patientDao.updateNoteSyncStatus(localId, 'synced',
+            serverId: serverId);
     }
   }
 
@@ -197,13 +221,22 @@ class SyncQueueProcessor {
       case 'patient':
         await _db.patientDao.updateSyncStatus(localId, status);
       case 'appointment':
+      case 'walk_in':
         await _db.appointmentDao.updateSyncStatus(localId, status);
       case 'consultation':
+      case 'consultation_vitals':
         await _db.consultationDao.updateSyncStatus(localId, status);
+      case 'prescription':
+        await _db.prescriptionDao.updateSyncStatus(localId, status);
       case 'test_order':
+      case 'test_order_bulk':
         await _db.testOrderDao.updateSyncStatus(localId, status);
       case 'invoice':
         await _db.invoiceDao.updateSyncStatus(localId, status);
+      case 'payment':
+        await _db.invoiceDao.updatePaymentSyncStatus(localId, status);
+      case 'patient_note':
+        await _db.patientDao.updateNoteSyncStatus(localId, status);
     }
   }
 }

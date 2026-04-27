@@ -28,7 +28,8 @@ class ConsultationDao extends DatabaseAccessor<AppDatabase>
           .watch();
 
   Future<ConsultationRow?> getById(String localId) =>
-      (select(consultations)..where((t) => t.id.equals(localId)))
+      (select(consultations)
+            ..where((t) => t.id.equals(localId) & t.isDeleted.equals(0)))
           .getSingleOrNull();
 
   Future<void> upsertConsultation(ConsultationsCompanion row) =>

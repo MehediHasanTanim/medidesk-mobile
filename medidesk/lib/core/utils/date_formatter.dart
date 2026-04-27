@@ -7,7 +7,6 @@ abstract final class DateFormatter {
   static final _dateFormat = DateFormat('dd MMM yyyy');
   static final _timeFormat = DateFormat('hh:mm a');
   static final _dateTimeFormat = DateFormat('dd MMM yyyy, hh:mm a');
-  static final _shortDateFormat = DateFormat('dd/MM/yyyy');
   static final _apiDateFormat = DateFormat('yyyy-MM-dd');
 
   /// Converts a UTC ISO8601 string to Asia/Dhaka and formats as "dd MMM yyyy, hh:mm a"

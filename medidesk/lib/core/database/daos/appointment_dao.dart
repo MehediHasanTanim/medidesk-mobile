@@ -61,7 +61,8 @@ class AppointmentDao extends DatabaseAccessor<AppDatabase>
   }
 
   Future<AppointmentRow?> getById(String localId) =>
-      (select(appointments)..where((t) => t.id.equals(localId)))
+      (select(appointments)
+            ..where((t) => t.id.equals(localId) & t.isDeleted.equals(0)))
           .getSingleOrNull();
 
   Future<void> upsertAll(List<AppointmentsCompanion> rows) async {

@@ -77,7 +77,7 @@ class _PatientListScreenState extends ConsumerState<PatientListScreen> {
                     borderRadius: BorderRadius.circular(14),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.ink.withOpacity(0.04),
+                        color: AppColors.ink.withValues(alpha: 0.04),
                         blurRadius: 6,
                         offset: const Offset(0, 2),
                       ),
@@ -185,7 +185,7 @@ class _PatientListView extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.ink.withOpacity(0.04),
+            color: AppColors.ink.withValues(alpha: 0.04),
             blurRadius: 6,
             offset: const Offset(0, 2),
           ),
@@ -242,7 +242,7 @@ class _PatientRow extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 22,
-              backgroundColor: _avatarColor.withOpacity(0.18),
+              backgroundColor: _avatarColor.withValues(alpha: 0.18),
               child: Text(initials,
                   style: TextStyle(
                       fontSize: 13,
