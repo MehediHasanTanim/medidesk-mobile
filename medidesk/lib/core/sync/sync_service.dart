@@ -62,6 +62,15 @@ class SyncService {
     }
   }
 
+  /// Triggers a full sync (lookup + pull + push) without touching the
+  /// connectivity subscription.  Called after login to populate Drift tables.
+  Future<void> triggerFullSync() async {
+    final online = await _connectivity.isOnline;
+    if (online && !_isSyncing) {
+      unawaited(_fullSync());
+    }
+  }
+
   /// Full pull + push — called from WorkManager background task.
   Future<void> backgroundSync() async {
     final online = await _connectivity.isOnline;

@@ -21,9 +21,10 @@ abstract final class AppColors {
   static const dangerSoft = Color(0xFFFDE2E2);
 
   // Sync status
-  static const syncPending = Color(0xFFE9A23B);
-  static const syncSynced = Color(0xFF1AA37A);
-  static const syncFailed = Color(0xFFDC4A4A);
+  static const syncPending    = Color(0xFFE9A23B);
+  static const syncProcessing = Color(0xFF4A90D9);
+  static const syncSynced     = Color(0xFF1AA37A);
+  static const syncFailed     = Color(0xFFDC4A4A);
 
   // Appointment status chips
   static const statusScheduled = Color(0xFF3D7C8A);

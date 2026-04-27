@@ -6,10 +6,15 @@
 /// testable (swap any singleton with a fake in widget tests).
 library;
 
+import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/sync/sync_service.dart';
 import '../../core/storage/preferences_service.dart';
 import '../../core/storage/secure_storage_service.dart';
+
+final dioProvider = Provider<Dio>(
+  (ref) => throw UnimplementedError('dioProvider must be overridden'),
+);
 
 final syncServiceProvider = Provider<SyncService>(
   (ref) => throw UnimplementedError('syncServiceProvider must be overridden'),

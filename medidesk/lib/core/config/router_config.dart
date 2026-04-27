@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../features/auth/presentation/providers/auth_providers.dart';
 import '../../features/auth/presentation/screens/login_screen.dart';
 import '../../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../../features/chambers/presentation/screens/chamber_list_screen.dart';
@@ -31,10 +32,18 @@ final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final routerProvider = Provider<GoRouter>((ref) {
+  // Re-evaluates (and re-creates the router) whenever auth state flips.
+  // GoRouter replacement is desirable here: it clears navigation history,
+  // which is exactly what login→dashboard and logout→login transitions need.
+  final isAuthenticated = ref.watch(isAuthenticatedProvider);
+
   return GoRouter(
     navigatorKey: _rootNavigatorKey,
-    initialLocation: '/dashboard',
-    redirect: (context, state) async {
+    initialLocation: isAuthenticated ? '/dashboard' : '/login',
+    redirect: (context, state) {
+      final onLogin = state.matchedLocation == '/login';
+      if (!isAuthenticated && !onLogin) return '/login';
+      if (isAuthenticated && onLogin) return '/dashboard';
       return null;
     },
     routes: [

@@ -236,13 +236,15 @@ enum PaymentMethod {
 
 enum SyncStatus {
   pending,
+  processing,
   synced,
   failed;
 
   String get displayName => switch (this) {
-        pending => 'Pending',
-        synced => 'Synced',
-        failed => 'Failed',
+        pending    => 'Pending',
+        processing => 'Syncing',
+        synced     => 'Synced',
+        failed     => 'Failed',
       };
 }
 

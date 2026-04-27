@@ -10,6 +10,9 @@ class DioClient {
   static Dio create({
     required String baseUrl,
     required SecureStorageService storage,
+    /// Optional callback invoked when the refresh token is expired/invalid.
+    /// Wire this to `isAuthenticatedProvider` so the router redirects to /login.
+    void Function()? onSessionExpired,
   }) {
     final dio = Dio(
       BaseOptions(
@@ -25,7 +28,7 @@ class DioClient {
     );
 
     dio.interceptors.addAll([
-      AuthInterceptor(storage),
+      AuthInterceptor(storage, onSessionExpired: onSessionExpired),
       ErrorInterceptor(),
       LoggingInterceptor(),
     ]);

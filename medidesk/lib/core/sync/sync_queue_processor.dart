@@ -27,6 +27,7 @@ class SyncQueueProcessor {
 
       try {
         await _db.syncQueueDao.markProcessing(entry.id);
+        await _updateSyncStatus(entry.entityType, entry.localId, 'processing');
         final serverId = await _dispatchApiCall(entry);
 
         if (entry.operation == 'CREATE' && serverId != null) {
@@ -60,6 +61,8 @@ class SyncQueueProcessor {
 
     if (retryCount >= _maxRetries) {
       await _updateSyncStatus(entry.entityType, entry.localId, 'failed');
+    } else {
+      await _updateSyncStatus(entry.entityType, entry.localId, 'pending');
     }
   }
 

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../providers/auth_providers.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _userCtrl = TextEditingController(text: 'dr.mehta');
   final _passCtrl = TextEditingController();
   bool _obscure = true;
-  bool _loading = false;
 
   @override
   void dispose() {
@@ -23,16 +23,39 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _signIn() async {
-    setState(() => _loading = true);
-    await Future.delayed(const Duration(milliseconds: 800));
-    if (mounted) {
-      setState(() => _loading = false);
-      context.go('/dashboard');
+    final username = _userCtrl.text.trim();
+    final password = _passCtrl.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter username and password.')),
+      );
+      return;
+    }
+
+    await ref
+        .read(loginNotifierProvider.notifier)
+        .execute(username, password);
+
+    // Error display — router redirect handles success navigation
+    final state = ref.read(loginNotifierProvider);
+    if (state.hasError && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            state.error?.toString() ?? 'Login failed. Please try again.',
+          ),
+          backgroundColor: Colors.red.shade700,
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final loginState = ref.watch(loginNotifierProvider);
+    final isLoading = loginState.isLoading;
+
     return Scaffold(
       backgroundColor: AppColors.surface2,
       body: SafeArea(
@@ -88,7 +111,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   children: const [
                     TextSpan(text: 'Welcome back,\n'),
                     TextSpan(
-                      text: 'Dr. Mehta',
+                      text: 'Sign in to continue',
                       style: TextStyle(color: AppColors.primaryDark),
                     ),
                   ],
@@ -111,6 +134,8 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _userCtrl,
                 keyboardType: TextInputType.text,
+                textInputAction: TextInputAction.next,
+                enabled: !isLoading,
                 decoration: InputDecoration(
                   prefixText: '@  ',
                   prefixStyle: const TextStyle(
@@ -122,18 +147,23 @@ class _LoginScreenState extends State<LoginScreen> {
                   fillColor: AppColors.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide:
+                        const BorderSide(color: AppColors.primary, width: 2),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide:
+                        const BorderSide(color: AppColors.primary, width: 2),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
-                    borderSide: const BorderSide(color: AppColors.primary, width: 2),
+                    borderSide:
+                        const BorderSide(color: AppColors.primary, width: 2),
                   ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                 ),
               ),
 
@@ -148,10 +178,15 @@ class _LoginScreenState extends State<LoginScreen> {
               TextFormField(
                 controller: _passCtrl,
                 obscureText: _obscure,
+                textInputAction: TextInputAction.done,
+                enabled: !isLoading,
+                onFieldSubmitted: (_) => _signIn(),
                 decoration: InputDecoration(
                   hintText: '••••••••••',
                   suffixIcon: TextButton(
-                    onPressed: () => setState(() => _obscure = !_obscure),
+                    onPressed: isLoading
+                        ? null
+                        : () => setState(() => _obscure = !_obscure),
                     child: Text(
                       _obscure ? 'Show' : 'Hide',
                       style: const TextStyle(
@@ -168,7 +203,7 @@ class _LoginScreenState extends State<LoginScreen> {
               Align(
                 alignment: Alignment.centerRight,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: isLoading ? null : () {},
                   child: const Text(
                     'Forgot password?',
                     style: TextStyle(
@@ -186,7 +221,7 @@ class _LoginScreenState extends State<LoginScreen> {
               SizedBox(
                 height: 52,
                 child: ElevatedButton(
-                  onPressed: _loading ? null : _signIn,
+                  onPressed: isLoading ? null : _signIn,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
                     shape: RoundedRectangleBorder(
@@ -194,7 +229,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     elevation: 0,
                   ),
-                  child: _loading
+                  child: isLoading
                       ? const SizedBox(
                           width: 20,
                           height: 20,
@@ -215,11 +250,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 12),
 
-              // Biometric
+              // Biometric (placeholder — not yet implemented)
               SizedBox(
                 height: 48,
                 child: OutlinedButton.icon(
-                  onPressed: () {},
+                  onPressed: isLoading ? null : () {},
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.primaryDark,
                     side: BorderSide.none,

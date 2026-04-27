@@ -1,11 +1,17 @@
 import 'package:dio/dio.dart';
+import '../../network/api_endpoints.dart';
 import '../../storage/secure_storage_service.dart';
 import '../../error/app_exception.dart';
 
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._storage);
+  AuthInterceptor(this._storage, {this.onSessionExpired});
 
   final SecureStorageService _storage;
+
+  /// Called when the refresh token is also expired/invalid.
+  /// Typically wired to clear `isAuthenticatedProvider` so the router
+  /// redirects the user back to the login screen.
+  final void Function()? onSessionExpired;
 
   @override
   Future<void> onRequest(
@@ -58,7 +64,7 @@ class AuthInterceptor extends Interceptor {
         ),
       );
       final resp = await dio.post(
-        '/auth/token/refresh/',
+        ApiEndpoints.refreshToken,
         data: {'refresh': refreshToken},
       );
       final newAccess = resp.data['access'] as String?;
@@ -74,6 +80,9 @@ class AuthInterceptor extends Interceptor {
       return await dio.fetch(original);
     } catch (_) {
       await _storage.clearTokens();
+      // Notify the app layer so it can clear isAuthenticatedProvider and
+      // let the router redirect back to /login.
+      onSessionExpired?.call();
       return null;
     }
   }

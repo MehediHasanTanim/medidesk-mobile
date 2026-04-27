@@ -9,6 +9,7 @@ class PreferencesService {
   static const _kSelectedChamberId = 'selected_chamber_id';
   static const _kMedicineLastSync = 'medicine_last_sync';
   static const _kLookupLastSync = 'lookup_last_sync';
+  static const _kChamberIds = 'chamber_ids';
 
   // --- Sync timestamps ---
 
@@ -26,6 +27,14 @@ class PreferencesService {
       _prefs.setInt(_kLookupLastSync, unixMs);
 
   int? getLookupLastSync() => _prefs.getInt(_kLookupLastSync);
+
+  // --- User chamber membership (set after login) ---
+
+  Future<void> setChamberIds(List<String> ids) =>
+      _prefs.setStringList(_kChamberIds, ids);
+
+  List<String> getChamberIds() =>
+      _prefs.getStringList(_kChamberIds) ?? const [];
 
   // --- Chamber selection ---
 

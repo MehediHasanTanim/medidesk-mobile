@@ -18,6 +18,17 @@ class SyncStatusBadge extends StatelessWidget {
             color: AppColors.syncPending,
           ),
         ),
+      'processing' => const Tooltip(
+          message: 'Syncing…',
+          child: SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              color: AppColors.syncProcessing,
+            ),
+          ),
+        ),
       'failed' => const Tooltip(
           message: 'Sync failed — will retry',
           child: Icon(
