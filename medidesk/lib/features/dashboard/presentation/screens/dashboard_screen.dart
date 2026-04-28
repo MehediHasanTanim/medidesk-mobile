@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   static const _upNext = [
@@ -12,14 +14,15 @@ class DashboardScreen extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final tt = Theme.of(context).textTheme;
+    final userName = ref.watch(currentUserNameProvider);
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [
-            SliverToBoxAdapter(child: _buildHeader(context, tt)),
+            SliverToBoxAdapter(child: _buildHeader(context, tt, userName)),
             SliverPadding(
               padding: const EdgeInsets.fromLTRB(18, 0, 18, 100),
               sliver: SliverList(
@@ -41,16 +44,23 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHeader(BuildContext context, TextTheme tt) {
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.length == 1) return parts[0].substring(0, parts[0].length.clamp(0, 2)).toUpperCase();
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  }
+
+  Widget _buildHeader(BuildContext context, TextTheme tt, String userName) {
+    final initials = _initials(userName);
     return Padding(
       padding: const EdgeInsets.fromLTRB(18, 14, 18, 0),
       child: Row(
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 22,
             backgroundColor: AppColors.primarySoft,
-            child: Text('DM',
-                style: TextStyle(
+            child: Text(initials,
+                style: const TextStyle(
                     fontWeight: FontWeight.w700,
                     color: AppColors.primaryDark,
                     fontSize: 13)),
@@ -63,7 +73,7 @@ class DashboardScreen extends StatelessWidget {
                 Text('Tuesday, 14 May',
                     style: tt.labelSmall?.copyWith(
                         color: AppColors.muted, letterSpacing: 0)),
-                Text('Hi, Dr. Mehta 👋',
+                Text('Hi, $userName 👋',
                     style: tt.titleMedium),
               ],
             ),

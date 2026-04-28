@@ -42,6 +42,21 @@ class TestOrderDao extends DatabaseAccessor<AppDatabase>
   Future<void> insertTestOrder(TestOrdersCompanion row) =>
       into(testOrders).insert(row);
 
+  Future<void> updateTestOrder(TestOrdersCompanion companion) =>
+      (update(testOrders)..where((t) => t.id.equals(companion.id.value)))
+          .write(companion);
+
+  Future<void> softDelete(String localId) {
+    final nowIso = DateTime.now().toUtc().toIso8601String();
+    return (update(testOrders)..where((t) => t.id.equals(localId))).write(
+      TestOrdersCompanion(
+        isDeleted: const Value(1),
+        deletedAt: Value(nowIso),
+        syncStatus: const Value('pending'),
+      ),
+    );
+  }
+
   Future<void> updateSyncStatus(
     String localId,
     String syncStatus, {

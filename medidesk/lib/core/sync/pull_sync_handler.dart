@@ -60,7 +60,9 @@ class PullSyncHandler {
   }
 
   Future<void> _pullPatients(String? after) async {
-    await _pullPaginated(ApiEndpoints.patients, after, (rows) async {
+    // §6.2: Use the correct search/list endpoint — GET /patients/search/
+    // (GET /patients/ is POST-only for patient creation on the backend)
+    await _pullPaginated(ApiEndpoints.patientSearch, after, (rows) async {
       final companions = rows.map((m) {
         return PatientsCompanion.insert(
           id: m['local_id'] as String? ?? m['id'] as String,
@@ -175,6 +177,41 @@ class PullSyncHandler {
             deletedAt: Value(m['deleted_at'] as String?),
           )).toList();
       await _db.prescriptionDao.upsertAllPrescriptions(companions);
+
+      // §7.4 — Also sync prescription items bundled in the list response.
+      for (final m in rows) {
+        final prescLocalId = m['local_id'] as String? ?? m['id'] as String;
+        final serverItems =
+            (m['items'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        if (serverItems.isEmpty) continue;
+        final nowMs = DateTime.now().millisecondsSinceEpoch;
+        final itemCompanions = serverItems.map((item) {
+          final itemLocalId =
+              item['local_id'] as String? ?? item['id'] as String;
+          return PrescriptionItemsCompanion.insert(
+            id: itemLocalId,
+            prescriptionId: prescLocalId,
+            medicineId: item['brand_id'] as String? ??
+                item['generic_id'] as String? ??
+                item['medicine_id'] as String? ??
+                '',
+            medicineName: item['medicine_name'] as String? ?? '',
+            morning: item['morning'] as String? ?? '0',
+            afternoon: item['afternoon'] as String? ?? '0',
+            evening: item['evening'] as String? ?? '0',
+            durationDays: item['duration_days'] as int? ?? 0,
+            route: Value(item['route'] as String? ?? 'oral'),
+            instructions: Value(item['instructions'] as String? ?? ''),
+            lastModified: item['last_modified'] as int? ?? nowMs,
+            serverId: Value(item['id'] as String),
+            syncStatus: const Value('synced'),
+            isDeleted: Value(
+                ((item['is_deleted'] as bool?) ?? false) ? 1 : 0),
+            deletedAt: Value(item['deleted_at'] as String?),
+          );
+        }).toList();
+        await _db.prescriptionDao.replaceItems(prescLocalId, itemCompanions);
+      }
     });
   }
 
@@ -220,6 +257,65 @@ class PullSyncHandler {
             deletedAt: Value(m['deleted_at'] as String?),
           )).toList();
       await _db.invoiceDao.upsertAllInvoices(companions);
+
+      // §9.5 — Also sync invoice items and payments bundled in the response.
+      // If the list endpoint returns InvoiceSummary (no items/payments), they
+      // will be empty lists and these loops are no-ops.
+      final nowMs = DateTime.now().millisecondsSinceEpoch;
+      for (final m in rows) {
+        final invLocalId = m['local_id'] as String? ?? m['id'] as String;
+
+        // Upsert items
+        final serverItems =
+            (m['items'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ?? [];
+        if (serverItems.isNotEmpty) {
+          final itemCompanions = serverItems.map((item) {
+            final itemLocalId =
+                item['local_id'] as String? ?? item['id'] as String;
+            return InvoiceItemsCompanion.insert(
+              id: itemLocalId,
+              invoiceId: invLocalId,
+              description: item['description'] as String? ?? '',
+              quantity: Value(item['quantity'] as int? ?? 1),
+              unitPrice: (item['unit_price'] as num?)?.toDouble() ?? 0.0,
+              lastModified: item['last_modified'] as int? ?? nowMs,
+              serverId: Value(item['id'] as String),
+              syncStatus: const Value('synced'),
+              isDeleted: Value(
+                  ((item['is_deleted'] as bool?) ?? false) ? 1 : 0),
+              deletedAt: Value(item['deleted_at'] as String?),
+            );
+          }).toList();
+          await _db.invoiceDao.upsertAllItems(itemCompanions);
+        }
+
+        // Upsert payments
+        final serverPayments =
+            (m['payments'] as List<dynamic>?)?.cast<Map<String, dynamic>>() ??
+                [];
+        if (serverPayments.isNotEmpty) {
+          final paymentCompanions = serverPayments.map((p) {
+            final paymentLocalId = p['local_id'] as String? ?? p['id'] as String;
+            return PaymentsCompanion.insert(
+              id: paymentLocalId,
+              invoiceId: invLocalId,
+              amount: (p['amount'] as num?)?.toDouble() ?? 0.0,
+              method: p['method'] as String? ?? 'cash',
+              transactionRef: Value(p['transaction_ref'] as String? ?? ''),
+              paidAt: p['paid_at'] as String? ??
+                  DateTime.now().toUtc().toIso8601String(),
+              recordedById: Value(p['recorded_by_id'] as String?),
+              lastModified: p['last_modified'] as int? ?? nowMs,
+              serverId: Value(p['id'] as String),
+              syncStatus: const Value('synced'),
+              isDeleted:
+                  Value(((p['is_deleted'] as bool?) ?? false) ? 1 : 0),
+              deletedAt: Value(p['deleted_at'] as String?),
+            );
+          }).toList();
+          await _db.invoiceDao.upsertAllPayments(paymentCompanions);
+        }
+      }
     });
   }
 }

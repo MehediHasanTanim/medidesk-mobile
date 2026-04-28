@@ -10,6 +10,7 @@ class PreferencesService {
   static const _kMedicineLastSync = 'medicine_last_sync';
   static const _kLookupLastSync = 'lookup_last_sync';
   static const _kChamberIds = 'chamber_ids';
+  static const _kFullName = 'full_name';
 
   // --- Sync timestamps ---
 
@@ -27,6 +28,12 @@ class PreferencesService {
       _prefs.setInt(_kLookupLastSync, unixMs);
 
   int? getLookupLastSync() => _prefs.getInt(_kLookupLastSync);
+
+  // --- User identity (set after login) ---
+
+  Future<void> setFullName(String name) => _prefs.setString(_kFullName, name);
+
+  String? getFullName() => _prefs.getString(_kFullName);
 
   // --- User chamber membership (set after login) ---
 

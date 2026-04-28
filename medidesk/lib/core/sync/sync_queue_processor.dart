@@ -106,6 +106,29 @@ class SyncQueueProcessor {
       return null;
     }
 
+    // ── Inline: payment — resolve invoice server ID before POSTing ────────
+    // §9.3: Payment cannot be pushed until its parent invoice has been synced.
+    if (entry.entityType == 'payment') {
+      final invoiceLocalId = payload['invoice_local_id'] as String;
+      final invoiceServerId = await _getServerId('invoice', invoiceLocalId);
+      if (invoiceServerId == null) {
+        // Invoice not yet synced — defer this payment push.
+        throw SyncException(
+          'Invoice not yet synced; deferring payment push',
+          entityType: entry.entityType,
+          localId: entry.localId,
+        );
+      }
+      final sendPayload = Map<String, dynamic>.from(payload)
+        ..['invoice_id'] = invoiceServerId
+        ..remove('invoice_local_id');
+      final resp = await _dio.post<Map<String, dynamic>>(
+        ApiEndpoints.payments,
+        data: sendPayload,
+      );
+      return resp.data?['id'] as String?;
+    }
+
     final entityPath = _entityPath(entry.entityType);
 
     switch (entry.operation) {

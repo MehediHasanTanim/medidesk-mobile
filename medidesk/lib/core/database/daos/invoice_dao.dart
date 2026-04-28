@@ -9,6 +9,12 @@ class InvoiceDao extends DatabaseAccessor<AppDatabase>
     with _$InvoiceDaoMixin {
   InvoiceDao(super.db);
 
+  Stream<List<InvoiceRow>> watchAll() =>
+      (select(invoices)
+            ..where((t) => t.isDeleted.equals(0))
+            ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+          .watch();
+
   Stream<List<InvoiceRow>> watchByPatient(String patientLocalId) =>
       (select(invoices)
             ..where(
@@ -76,6 +82,17 @@ class InvoiceDao extends DatabaseAccessor<AppDatabase>
     await batch((b) {
       b.insertAllOnConflictUpdate(payments, rows);
     });
+  }
+
+  Future<void> softDelete(String localId) {
+    final nowIso = DateTime.now().toUtc().toIso8601String();
+    return (update(invoices)..where((t) => t.id.equals(localId))).write(
+      InvoicesCompanion(
+        isDeleted: const Value(1),
+        deletedAt: Value(nowIso),
+        syncStatus: const Value('pending'),
+      ),
+    );
   }
 
   Future<void> updateSyncStatus(

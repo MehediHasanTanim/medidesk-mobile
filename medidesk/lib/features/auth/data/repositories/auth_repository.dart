@@ -71,7 +71,8 @@ class AuthRepository implements IAuthRepository {
       role: loginResp.user.role,
     );
 
-    // Persist chamber membership for UI-layer filtering
+    // Persist user display name and chamber membership for UI-layer use
+    await _prefs.setFullName(loginResp.user.username);
     await _prefs.setChamberIds(loginResp.user.chamberIds);
 
     // Trigger full sync non-blocking — populates Drift tables after login

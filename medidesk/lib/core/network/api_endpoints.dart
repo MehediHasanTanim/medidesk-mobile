@@ -18,7 +18,9 @@ abstract final class ApiEndpoints {
   // ── Patients ──────────────────────────────────────────────────────────
   static const String patients             = '/patients/';
   static const String patientSearch        = '/patients/search/';
-  static const String patientNoteCreate    = '/patient-notes/';
+  // NOTE: patient notes use a nested path — /patients/{id}/notes/ — handled
+  // inline in SyncQueueProcessor._dispatchApiCall() for the 'patient_note'
+  // entity type.  The old flat '/patient-notes/' constant has been removed.
   static String patientDetail(String id)   => '/patients/$id/';
   static String patientHistory(String id)  => '/patients/$id/history/';
   static String patientNotes(String id)    => '/patients/$id/notes/';

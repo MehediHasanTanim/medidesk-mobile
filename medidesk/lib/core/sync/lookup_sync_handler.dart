@@ -78,8 +78,27 @@ class LookupSyncHandler {
           .difference(DateTime.fromMillisecondsSinceEpoch(lastMs));
       if (age < _medicineRefreshInterval) return;
     }
-    await Future.wait([_syncGenericMedicines(), _syncBrandMedicines()]);
+    await Future.wait([
+      _syncGenericMedicines(),
+      _syncBrandMedicines(),
+      _syncManufacturers(),
+    ]);
     await _prefs.setMedicineLastSync(DateTime.now().millisecondsSinceEpoch);
+  }
+
+  /// §8.4 — Manufacturer sync stub.
+  ///
+  /// The [BrandMedicines] table stores `manufacturer` as a plain string (no FK)
+  /// so manufacturer data arrives embedded in brand rows from [_syncBrandMedicines].
+  /// The backend exposes `GET /medicines/manufacturers/` for admin CRUD, but for v1
+  /// there is no separate Manufacturers Drift table; manufacturer values are resolved
+  /// through the brand medicine `manufacturer` field.
+  ///
+  /// Promote this stub to a full implementation (with its own Drift table) if an
+  /// admin screen needs to manage manufacturers directly.
+  Future<void> _syncManufacturers() async {
+    // No-op for v1: manufacturer strings are embedded in brand medicine rows.
+    return;
   }
 
   Future<void> _syncGenericMedicines() async {

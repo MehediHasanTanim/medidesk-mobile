@@ -60,6 +60,14 @@ class LogoutNotifier extends _$LogoutNotifier {
   }
 }
 
+// ── Current user display name (sync, from SharedPreferences) ───────────────
+
+/// Returns the full name persisted at login time. Falls back to 'Doctor' if
+/// not yet set (e.g. first cold-start before any login).
+final currentUserNameProvider = Provider<String>((ref) {
+  return ref.watch(preferencesServiceProvider).getFullName() ?? 'Doctor';
+});
+
 // ── Profile ────────────────────────────────────────────────────────────────
 
 @riverpod

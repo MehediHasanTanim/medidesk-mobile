@@ -13,6 +13,8 @@ final patientRepositoryProvider = Provider<PatientRepository>((ref) {
   return PatientRepository(
     db: ref.watch(appDatabaseProvider),
     syncService: ref.watch(syncServiceProvider),
+    // §6.2 / §6.4 — Dio needed for server-side search and patient history.
+    dio: ref.watch(dioProvider),
   );
 });
 
@@ -121,4 +123,19 @@ class AddPatientNoteNotifier extends _$AddPatientNoteNotifier {
           .addNote(patientLocalId, content, userId),
     );
   }
+}
+
+// ── §6.4 Patient history (online-only) ───────────────────────────────────
+
+/// Fetches the full clinical history for a patient from the server.
+///
+/// [serverId] is the backend UUID — only non-null once the patient CREATE
+/// has been pushed to the server.  The UI should guard against a null
+/// serverId and show an empty state instead of calling this provider.
+@riverpod
+Future<PatientHistory?> patientHistory(
+  PatientHistoryRef ref,
+  String serverId,
+) {
+  return ref.watch(patientRepositoryProvider).getHistory(serverId);
 }

@@ -40,6 +40,45 @@ class MedicineDao extends DatabaseAccessor<AppDatabase>
   Future<BrandMedicineRow?> getBrandById(String id) =>
       (select(brandMedicines)..where((t) => t.id.equals(id))).getSingleOrNull();
 
+  Future<GenericMedicineRow?> getGenericById(String id) =>
+      (select(genericMedicines)..where((t) => t.id.equals(id)))
+          .getSingleOrNull();
+
+  /// Combined brand + generic search used by [MedicineRepository.search].
+  /// Returns brand rows first (branded medicines are preferred in autocomplete),
+  /// followed by generic rows when no matching brand covers the query term.
+  Future<List<BrandMedicineRow>> searchBrandOnce(
+    String query, {
+    int limit = 20,
+  }) {
+    final like = '%${query.toLowerCase()}%';
+    return (select(brandMedicines)
+          ..where(
+            (t) =>
+                (t.brandName.lower().like(like) |
+                    t.strength.lower().like(like) |
+                    t.manufacturer.lower().like(like)) &
+                t.isActive.equals(1),
+          )
+          ..limit(limit))
+        .get();
+  }
+
+  Future<List<GenericMedicineRow>> searchGenericOnce(
+    String query, {
+    int limit = 20,
+  }) {
+    final like = '%${query.toLowerCase()}%';
+    return (select(genericMedicines)
+          ..where(
+            (t) =>
+                t.genericName.lower().like(like) |
+                t.drugClass.lower().like(like),
+          )
+          ..limit(limit))
+        .get();
+  }
+
   Future<void> upsertAllBrand(List<BrandMedicinesCompanion> rows) async {
     await batch((b) {
       b.insertAllOnConflictUpdate(brandMedicines, rows);

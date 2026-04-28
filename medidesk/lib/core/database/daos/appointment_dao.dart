@@ -105,4 +105,42 @@ class AppointmentDao extends DatabaseAccessor<AppDatabase>
       ),
     );
   }
+
+  Future<void> insertAppointment(AppointmentsCompanion companion) =>
+      into(appointments).insert(companion);
+
+  Future<void> updateAppointment(AppointmentsCompanion companion) =>
+      (update(appointments)..where((t) => t.id.equals(companion.id.value)))
+          .write(companion);
+
+  Future<void> softDelete(String localId) {
+    final now = DateTime.now().toIso8601String();
+    return (update(appointments)..where((t) => t.id.equals(localId))).write(
+      AppointmentsCompanion(
+        isDeleted: const Value(1),
+        deletedAt: Value(now),
+        syncStatus: const Value('pending'),
+      ),
+    );
+  }
+
+  Future<AppointmentRow?> getByServerId(String serverId) =>
+      (select(appointments)..where((t) => t.serverId.equals(serverId)))
+          .getSingleOrNull();
+
+  Stream<List<AppointmentRow>> watchTodayQueue(DateTime date) {
+    final dayStart = DateTime(date.year, date.month, date.day).toIso8601String();
+    final dayEnd =
+        DateTime(date.year, date.month, date.day, 23, 59, 59).toIso8601String();
+    return (select(appointments)
+          ..where(
+            (t) =>
+                t.isDeleted.equals(0) &
+                t.scheduledAt.isBiggerOrEqualValue(dayStart) &
+                t.scheduledAt.isSmallerOrEqualValue(dayEnd) &
+                (t.status.equals('in_queue') | t.status.equals('in_progress')),
+          )
+          ..orderBy([(t) => OrderingTerm.asc(t.tokenNumber)]))
+        .watch();
+  }
 }

@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/theme/app_colors.dart';
+import '../../../auth/presentation/providers/auth_providers.dart';
 
-class SettingsScreen extends StatefulWidget {
+class SettingsScreen extends ConsumerStatefulWidget {
   const SettingsScreen({super.key});
 
   @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends ConsumerState<SettingsScreen> {
   bool _notifications = true;
   bool _biometric = true;
   bool _autoBackup = true;
@@ -22,9 +24,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     ('Templates', '12 saved'),
   ];
 
+  String _initials(String name) {
+    final parts = name.trim().split(RegExp(r'\s+'));
+    if (parts.length == 1) return parts[0].substring(0, parts[0].length.clamp(0, 2)).toUpperCase();
+    return '${parts.first[0]}${parts.last[0]}'.toUpperCase();
+  }
+
   @override
   Widget build(BuildContext context) {
     final tt = Theme.of(context).textTheme;
+    final userName = ref.watch(currentUserNameProvider);
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -59,11 +68,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Row(
                       children: [
-                        const CircleAvatar(
+                        CircleAvatar(
                           radius: 32,
                           backgroundColor: AppColors.primarySoft,
-                          child: Text('DM',
-                              style: TextStyle(
+                          child: Text(_initials(userName),
+                              style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.w800,
                                   color: AppColors.primaryDark)),
@@ -74,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             crossAxisAlignment:
                                 CrossAxisAlignment.start,
                             children: [
-                              Text('Dr. Anjali Mehta',
+                              Text(userName,
                                   style: tt.titleMedium),
                               const SizedBox(height: 2),
                               const Text(
@@ -265,22 +274,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 20),
 
                   // Sign out
-                  SizedBox(
-                    height: 48,
-                    width: double.infinity,
-                    child: OutlinedButton(
-                      onPressed: () => context.go('/login'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
-                        side: BorderSide.none,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                      ),
-                      child: const Text('Sign out',
-                          style: TextStyle(fontWeight: FontWeight.w700)),
-                    ),
-                  ),
+                  _SignOutButton(),
                 ]),
               ),
             ),
@@ -296,6 +290,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
           fontWeight: FontWeight.w700,
           color: AppColors.muted,
           letterSpacing: 1));
+}
+
+// ── Sign-out button ────────────────────────────────────────
+class _SignOutButton extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isLoading = ref.watch(logoutNotifierProvider).isLoading;
+    return SizedBox(
+      height: 48,
+      width: double.infinity,
+      child: OutlinedButton(
+        onPressed: isLoading
+            ? null
+            : () async {
+                await ref.read(logoutNotifierProvider.notifier).execute();
+                // Router redirect to /login fires automatically via
+                // isAuthenticatedProvider; no manual navigation needed.
+              },
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.error,
+          side: BorderSide.none,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
+        ),
+        child: isLoading
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppColors.error,
+                ),
+              )
+            : const Text('Sign out',
+                style: TextStyle(fontWeight: FontWeight.w700)),
+      ),
+    );
+  }
 }
 
 // ── Reusable widgets ──────────────────────────────────────

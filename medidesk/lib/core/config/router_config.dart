@@ -103,7 +103,9 @@ final routerProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: 'new',
                 name: 'appointment-new',
-                builder: (ctx, state) => const AppointmentFormScreen(),
+                builder: (ctx, state) => AppointmentFormScreen(
+                  patientId: state.uri.queryParameters['patientId'],
+                ),
               ),
               GoRoute(
                 path: 'queue',
@@ -116,6 +118,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (ctx, state) => AppointmentDetailScreen(
                   localId: state.pathParameters['localId']!,
                 ),
+                routes: [
+                  GoRoute(
+                    path: 'edit',
+                    name: 'appointment-edit',
+                    builder: (ctx, state) => AppointmentFormScreen(
+                      localId: state.pathParameters['localId'],
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

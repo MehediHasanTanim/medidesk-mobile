@@ -53,4 +53,36 @@ class ConsultationDao extends DatabaseAccessor<AppDatabase>
       ),
     );
   }
+
+  Stream<ConsultationRow?> watchById(String localId) =>
+      (select(consultations)
+            ..where((t) => t.id.equals(localId) & t.isDeleted.equals(0)))
+          .watchSingleOrNull();
+
+  Future<void> updateConsultation(ConsultationsCompanion companion) =>
+      (update(consultations)
+            ..where((t) => t.id.equals(companion.id.value)))
+          .write(companion);
+
+  Future<void> softDelete(String localId) {
+    final now = DateTime.now();
+    return (update(consultations)..where((t) => t.id.equals(localId))).write(
+      ConsultationsCompanion(
+        isDeleted: const Value(1),
+        deletedAt: Value(now.toUtc().toIso8601String()),
+        syncStatus: const Value('pending'),
+        lastModified: Value(now.millisecondsSinceEpoch),
+      ),
+    );
+  }
+
+  Future<void> markCompleted(String localId, String completedAt) =>
+      (update(consultations)..where((t) => t.id.equals(localId))).write(
+        ConsultationsCompanion(
+          isDraft: const Value(0),
+          completedAt: Value(completedAt),
+          syncStatus: const Value('synced'),
+          lastModified: Value(DateTime.now().millisecondsSinceEpoch),
+        ),
+      );
 }
